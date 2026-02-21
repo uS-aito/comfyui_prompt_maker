@@ -1,0 +1,90 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ComfyUI Configuration Schema",
+  "type": "object",
+  "required": [
+    "comfyui_config",
+    "workflow_config",
+    "scenes"
+  ],
+  "properties": {
+    "comfyui_config": {
+      "type": "object",
+      "required": [
+        "server_address",
+        "client_id"
+      ],
+      "properties": {
+        "server_address": {
+          "type": "string",
+          "description": "ComfyUIサーバーのアドレス (例: 127.0.0.1:8188)"
+        },
+        "client_id": {
+          "type": "string",
+          "description": "クライアント識別子"
+        }
+      }
+    },
+    "workflow_config": {
+      "type": "object",
+      "required": [
+        "workflow_json_path",
+        "image_output_path",
+        "library_file_path",
+        "seed_node_id",
+        "batch_size_node_id",
+        "negative_prompt_node_id",
+        "positive_prompt_node_id",
+        "environment_prompt_node_id",
+        "default_prompts"
+      ],
+      "properties": {
+        "workflow_json_path": { "type": "string" },
+        "image_output_path": { "type": "string" },
+        "library_file_path": { "type": "string" },
+        "seed_node_id": { "type": "integer" },
+        "batch_size_node_id": { "type": "integer" },
+        "negative_prompt_node_id": { "type": "integer" },
+        "positive_prompt_node_id": { "type": "integer" },
+        "environment_prompt_node_id": { "type": "integer" },
+        "default_prompts": {
+          "type": "object",
+          "required": [
+            "base_positive_prompt",
+            "environment_prompt",
+            "positive_prompt",
+            "negative_prompt",
+            "batch_size"
+          ],
+          "properties": {
+            "base_positive_prompt": { "type": "string" },
+            "environment_prompt": { "type": "string" },
+            "positive_prompt": { "type": "string" },
+            "negative_prompt": { "type": "string" },
+            "batch_size": { "type": "integer", "minimum": 1 }
+          }
+        }
+      }
+    },
+    "scenes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "シーンの一意の識別名"
+          },
+          "base_positive_prompt": { "type": "string" },
+          "positive_prompt": { "type": "string" },
+          "negative_prompt": { "type": "string" },
+          "environment_prompt": { "type": "string" },
+          "batch_size": { "type": "integer", "minimum": 1 }
+        }
+      }
+    }
+  }
+}
