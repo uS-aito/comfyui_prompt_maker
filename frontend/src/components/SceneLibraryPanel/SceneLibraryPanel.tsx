@@ -1,5 +1,6 @@
 import { useAppContext } from '../../state/AppContext'
 import type { SceneTemplate } from '../../types/scene'
+import scenePlaceholder from '../../assets/scene-placeholder.svg'
 
 export function SceneLibraryPanel() {
   const { state, dispatch } = useAppContext()
@@ -34,9 +35,15 @@ export function SceneLibraryPanel() {
                 <img
                   src={scene.previewImageUrl}
                   alt={scene.displayName}
+                  style={{ width: 80, height: 80, objectFit: 'cover' }}
                 />
               ) : (
-                <div aria-hidden="true" style={{ background: '#eee', width: 80, height: 80 }} />
+                <img
+                  src={scenePlaceholder}
+                  alt=""
+                  aria-hidden="true"
+                  style={{ width: 80, height: 80 }}
+                />
               )}
               <span>{scene.displayName}</span>
             </button>
