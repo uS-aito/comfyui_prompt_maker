@@ -6,7 +6,7 @@
  * - isOpen=true のときドロワー本体・タイトル・フォームが表示される
  * - 未変更フィールドに default_prompts 値がプレースホルダとして表示される
  * - 変更時に UPDATE_SCENE_OVERRIDE が即時 dispatch される
- * - 閉じるボタン・完了ボタン・オーバーレイクリックで CLOSE_DRAWER が dispatch される
+ * - 閉じるボタン・完了ボタン・Escape キーで CLOSE_DRAWER が dispatch される
  * - ドロワー表示中は半透明オーバーレイが表示される
  */
 
@@ -66,7 +66,7 @@ describe('SceneEditDrawer - 非表示', () => {
         dispatch={vi.fn()}
       />
     )
-    expect(screen.queryByTestId('drawer-overlay')).toBeNull()
+    expect(document.querySelector('[data-slot="sheet-overlay"]')).toBeNull()
   })
 
   it('scene が null の場合、ドロワーが表示されない', () => {
@@ -166,7 +166,7 @@ describe('SceneEditDrawer - 表示', () => {
         dispatch={vi.fn()}
       />
     )
-    expect(screen.getByTestId('drawer-overlay')).toBeDefined()
+    expect(document.querySelector('[data-slot="sheet-overlay"]')).not.toBeNull()
   })
 })
 
@@ -379,7 +379,7 @@ describe('SceneEditDrawer - 閉じる操作', () => {
     expect(dispatch).toHaveBeenCalledWith({ type: 'CLOSE_DRAWER' })
   })
 
-  it('オーバーレイをクリックすると CLOSE_DRAWER が dispatch される', () => {
+  it('Escape キーを押すと CLOSE_DRAWER が dispatch される', () => {
     const dispatch = vi.fn()
     render(
       <SceneEditDrawer
@@ -389,7 +389,7 @@ describe('SceneEditDrawer - 閉じる操作', () => {
         dispatch={dispatch}
       />
     )
-    fireEvent.click(screen.getByTestId('drawer-overlay'))
+    fireEvent.keyDown(document, { key: 'Escape' })
     expect(dispatch).toHaveBeenCalledWith({ type: 'CLOSE_DRAWER' })
   })
 })

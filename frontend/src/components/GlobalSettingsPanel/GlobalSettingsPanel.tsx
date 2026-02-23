@@ -1,10 +1,15 @@
-import { useState } from 'react'
 import { useAppContext } from '../../state/AppContext'
-import type { Environment } from '../../types/environment'
+import { Input } from '../ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../ui/select'
 
 export function GlobalSettingsPanel() {
   const { state, dispatch } = useAppContext()
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
   const { environments, globalSettings } = state
   const { characterName, selectedEnvironment } = globalSettings
@@ -13,25 +18,23 @@ export function GlobalSettingsPanel() {
     dispatch({ type: 'SET_CHARACTER_NAME', payload: e.target.value })
   }
 
-  const handleToggleDropdown = () => {
-    setIsDropdownOpen((prev) => !prev)
+  const handleSelectEnvironment = (value: string) => {
+    const env = environments.find((e) => e.name === value)
+    if (env) {
+      dispatch({ type: 'SELECT_ENVIRONMENT', payload: env })
+    }
   }
-
-  const handleSelectEnvironment = (env: Environment) => {
-    dispatch({ type: 'SELECT_ENVIRONMENT', payload: env })
-    setIsDropdownOpen(false)
-  }
-
-  const triggerAriaLabel = selectedEnvironment
-    ? `環境: ${selectedEnvironment.displayName}`
-    : '環境を選択'
 
   return (
-    <div>
+    <div className="space-y-4">
+      <h2 className="text-sm font-semibold">グローバル設定</h2>
+
       {/* キャラクター名入力 */}
-      <div>
-        <label htmlFor="character-name">キャラクター名</label>
-        <input
+      <div className="space-y-1">
+        <label htmlFor="character-name" className="text-sm">
+          キャラクター名
+        </label>
+        <Input
           id="character-name"
           type="text"
           value={characterName}
@@ -40,62 +43,36 @@ export function GlobalSettingsPanel() {
         />
       </div>
 
-      {/* 環境選択ドロップダウン */}
-      <div>
-        <span>環境</span>
-        <div style={{ position: 'relative' }}>
-          <button
-            onClick={handleToggleDropdown}
-            aria-label={triggerAriaLabel}
-            aria-haspopup="listbox"
-            aria-expanded={isDropdownOpen}
-          >
-            {selectedEnvironment ? (
-              <>
-                {selectedEnvironment.thumbnailUrl && (
-                  <img
-                    src={selectedEnvironment.thumbnailUrl}
-                    alt=""
-                    aria-hidden="true"
-                    style={{ width: 24, height: 24, objectFit: 'cover' }}
-                  />
-                )}
-                <span>{selectedEnvironment.displayName}</span>
-              </>
-            ) : (
-              <span>環境を選択</span>
-            )}
-          </button>
-
-          {isDropdownOpen && (
-            <ul role="listbox" aria-label="環境一覧" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-              {environments.map((env) => (
-                <li
-                  key={env.name}
-                  role="option"
-                  aria-label={env.displayName}
-                  aria-selected={selectedEnvironment?.name === env.name}
-                  onClick={() => handleSelectEnvironment(env)}
-                  style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}
-                >
+      {/* 環境選択 */}
+      <div className="space-y-1">
+        <p className="text-sm">環境</p>
+        <Select
+          value={selectedEnvironment?.name ?? ''}
+          onValueChange={handleSelectEnvironment}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="環境を選択" />
+          </SelectTrigger>
+          <SelectContent>
+            {environments.map((env) => (
+              <SelectItem key={env.name} value={env.name}>
+                <div className="flex items-center gap-2">
                   {env.thumbnailUrl ? (
                     <img
                       src={env.thumbnailUrl}
                       alt={env.displayName}
-                      style={{ width: 40, height: 40, objectFit: 'cover' }}
+                      aria-hidden="true"
+                      className="h-8 w-8 object-cover"
                     />
                   ) : (
-                    <div
-                      style={{ width: 40, height: 40, background: '#eee' }}
-                      aria-hidden="true"
-                    />
+                    <div className="h-8 w-8 bg-muted" aria-hidden="true" />
                   )}
                   <span>{env.displayName}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
     </div>
   )

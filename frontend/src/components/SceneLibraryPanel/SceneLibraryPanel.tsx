@@ -1,6 +1,7 @@
 import { useAppContext } from '../../state/AppContext'
 import type { SceneTemplate } from '../../types/scene'
 import scenePlaceholder from '../../assets/scene-placeholder.svg'
+import { Alert, AlertDescription } from '../ui/alert'
 
 export function SceneLibraryPanel() {
   const { state, dispatch } = useAppContext()
@@ -11,41 +12,54 @@ export function SceneLibraryPanel() {
   }
 
   if (error) {
-    return <div role="alert">{error}</div>
+    return (
+      <Alert variant="destructive">
+        <AlertDescription>{error}</AlertDescription>
+      </Alert>
+    )
   }
 
   if (loadingState.library) {
-    return <div>読み込み中...</div>
+    return (
+      <div className="flex items-center justify-center p-8 text-sm text-muted-foreground">
+        読み込み中...
+      </div>
+    )
   }
 
   if (scenes.length === 0) {
-    return <div>シーンが見つかりません</div>
+    return (
+      <div className="flex items-center justify-center p-8 text-sm text-muted-foreground">
+        シーンが見つかりません
+      </div>
+    )
   }
 
   return (
-    <div style={{ overflowY: 'auto' }}>
-      <ul role="list" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+    <div className="overflow-y-auto">
+      <ul role="list" className="list-none p-0 m-0 space-y-2 p-2">
         {scenes.map((scene) => (
           <li key={scene.name}>
             <button
               onClick={() => handleSceneClick(scene)}
               aria-label={scene.displayName}
+              className="w-full flex items-center gap-3 p-3 rounded-lg border bg-card text-card-foreground shadow-sm hover:bg-accent hover:text-accent-foreground transition-colors text-left"
             >
               {scene.previewImageUrl ? (
                 <img
                   src={scene.previewImageUrl}
                   alt={scene.displayName}
-                  style={{ width: 80, height: 80, objectFit: 'cover' }}
+                  className="w-20 h-20 object-cover rounded-md shrink-0"
                 />
               ) : (
                 <img
                   src={scenePlaceholder}
                   alt=""
                   aria-hidden="true"
-                  style={{ width: 80, height: 80 }}
+                  className="w-20 h-20 rounded-md shrink-0"
                 />
               )}
-              <span>{scene.displayName}</span>
+              <span className="text-sm font-medium">{scene.displayName}</span>
             </button>
           </li>
         ))}
