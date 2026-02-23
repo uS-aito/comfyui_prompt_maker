@@ -1,4 +1,8 @@
+import { X } from 'lucide-react'
 import type { SceneQueueItem, SceneOverrides } from '../../types/scene'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 interface QueueCardProps {
   item: SceneQueueItem
@@ -24,35 +28,34 @@ export function QueueCard({ item, onEdit, onDelete }: QueueCardProps) {
   return (
     <div
       data-modified={isModified ? 'true' : 'false'}
-      style={{
-        borderLeft: isModified ? '4px solid #3b82f6' : '4px solid transparent',
-        display: 'flex',
-        alignItems: 'flex-start',
-        cursor: 'pointer',
-        padding: '8px',
-      }}
+      className={cn(
+        'border rounded-md bg-card p-3 flex items-start cursor-pointer border-l-4',
+        isModified ? 'border-l-blue-500' : 'border-l-transparent'
+      )}
       onClick={() => onEdit(item.id)}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onEdit(item.id) }}
       aria-label={displayName}
     >
-      <div style={{ flex: 1 }}>
+      <div className="flex-1">
         <div>{displayName}</div>
         {isModified && badges.length > 0 && (
-          <div>
+          <div className="flex flex-wrap gap-1 mt-1">
             {badges.map(badge => (
-              <span key={badge}>{badge}</span>
+              <Badge key={badge} variant="secondary">{badge}</Badge>
             ))}
           </div>
         )}
       </div>
-      <button
+      <Button
+        variant="ghost"
+        size="icon"
         aria-label={`${displayName}を削除`}
         onClick={(e) => { e.stopPropagation(); onDelete(item.id) }}
       >
-        ×
-      </button>
+        <X />
+      </Button>
     </div>
   )
 }

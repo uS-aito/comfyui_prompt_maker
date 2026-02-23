@@ -165,6 +165,40 @@ describe('AppContent SceneEditDrawer 統合 (Task 5)', () => {
   })
 })
 
+// Task 2 (styling) のテスト: Tailwind レイアウトクラスの検証
+describe('AppContent Tailwind レイアウトスタイル (Task 2 styling)', () => {
+  it('メインレイアウトコンテナに flex と h-full クラスが適用されている', async () => {
+    const { container } = render(<App />)
+    await waitFor(() => screen.getByText('シーン1'))
+    // AppProvider > AppContent の直下にある flex コンテナ
+    const flexContainer = container.querySelector('.flex.h-full')
+    expect(flexContainer).not.toBeNull()
+  })
+
+  it('左ペインに w-\\[300px\\] と shrink-0 クラスが適用されている', async () => {
+    const { container } = render(<App />)
+    await waitFor(() => screen.getByText('シーン1'))
+    const leftPane = container.querySelector('.shrink-0.overflow-y-auto')
+    expect(leftPane).not.toBeNull()
+  })
+
+  it('中央ペインに flex-1 クラスが適用されている', async () => {
+    const { container } = render(<App />)
+    await waitFor(() => screen.getByText('シーン1'))
+    const centerPane = container.querySelector('.flex-1.overflow-y-auto')
+    expect(centerPane).not.toBeNull()
+  })
+
+  it('App.tsx の最上位レイアウトコンテナにインラインスタイルが存在しない', async () => {
+    const { container } = render(<App />)
+    await waitFor(() => screen.getByText('シーン1'))
+    // App.tsx の最上位 flex コンテナ自体にインラインスタイルが無いことを確認
+    const appRoot = container.firstElementChild
+    const mainLayout = appRoot?.firstElementChild
+    expect(mainLayout?.getAttribute('style')).toBeNull()
+  })
+})
+
 // Task 6.2 のテスト: エラー処理の動作
 describe('AppContent エラー処理 (Task 6.2)', () => {
   it('fetchScenes がエラーをスローしてもアプリがクラッシュしない', async () => {

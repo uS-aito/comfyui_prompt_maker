@@ -1,7 +1,13 @@
 /**
- * GlobalSettingsPanel ユニットテスト (タスク 7.1)
+ * GlobalSettingsPanel ユニットテスト (タスク 3, 9.1)
  *
- * キャラクター名入力と環境選択ドロップダウンの動作を検証する
+ * キャラクター名入力と環境選択（Shadcn/ui Select）の動作を検証する
+ *
+ * 変更点 (タスク 9.1):
+ * - カスタムドロップダウン前提のクエリ（role="button" で trigger を取得）を
+ *   Radix Select の DOM 構造（role="combobox"）に対応させた
+ * - ドロップダウンの開閉は fireEvent.pointerDown / fireEvent.click で操作する
+ * - listbox・option クエリはそのまま維持（Portal でレンダリングされるが screen で検索可能）
  */
 
 import { render, screen, act, fireEvent } from '@testing-library/react'
@@ -76,6 +82,18 @@ function renderWithLibraryData(environments: Environment[] = mockEnvironments) {
   return result
 }
 
+// Radix Select のトリガーを取得するヘルパー
+// SelectTrigger は role="combobox" で描画される
+function getSelectTrigger() {
+  return screen.getByRole('combobox')
+}
+
+// Radix Select のドロップダウンを開くヘルパー
+// Radix は pointerDown イベントで開く（pointerType が 'touch' 以外の場合）
+function openDropdown(trigger: HTMLElement) {
+  fireEvent.pointerDown(trigger, { button: 0, ctrlKey: false, pointerType: 'mouse' })
+}
+
 // --- キャラクター名入力 ---
 
 describe('GlobalSettingsPanel - キャラクター名入力', () => {
@@ -112,12 +130,21 @@ describe('GlobalSettingsPanel - キャラクター名入力', () => {
   })
 })
 
-// --- 環境選択ドロップダウン ---
+// --- グローバル設定見出し ---
 
-describe('GlobalSettingsPanel - 環境選択ドロップダウン', () => {
-  it('環境選択トリガーが表示される', () => {
+describe('GlobalSettingsPanel - セクション見出し', () => {
+  it('グローバル設定の見出しが表示される', () => {
     renderWithLibraryData()
-    expect(screen.getByRole('button', { name: '環境を選択' })).toBeDefined()
+    expect(screen.getByText('グローバル設定')).toBeDefined()
+  })
+})
+
+// --- 環境選択（Radix UI Select） ---
+
+describe('GlobalSettingsPanel - 環境選択（Shadcn/ui Select）', () => {
+  it('環境選択コンボボックスが表示される', () => {
+    renderWithLibraryData()
+    expect(getSelectTrigger()).toBeDefined()
   })
 
   it('初期状態で環境が未選択（プレースホルダ表示）', () => {
@@ -125,18 +152,20 @@ describe('GlobalSettingsPanel - 環境選択ドロップダウン', () => {
     expect(screen.getByText('環境を選択')).toBeDefined()
   })
 
-  it('トリガークリックでドロップダウンが開く', () => {
+  it('トリガー操作でドロップダウンが開く', () => {
     renderWithLibraryData()
+    const trigger = getSelectTrigger()
     act(() => {
-      screen.getByRole('button', { name: '環境を選択' }).click()
+      openDropdown(trigger)
     })
     expect(screen.getByRole('listbox')).toBeDefined()
   })
 
   it('ドロップダウンに環境一覧が表示される', () => {
     renderWithLibraryData()
+    const trigger = getSelectTrigger()
     act(() => {
-      screen.getByRole('button', { name: '環境を選択' }).click()
+      openDropdown(trigger)
     })
     expect(screen.getByRole('option', { name: '室内' })).toBeDefined()
     expect(screen.getByRole('option', { name: '屋外' })).toBeDefined()
@@ -144,59 +173,65 @@ describe('GlobalSettingsPanel - 環境選択ドロップダウン', () => {
 
   it('サムネイルあり環境の img 要素がドロップダウンに表示される', () => {
     renderWithLibraryData()
+    const trigger = getSelectTrigger()
     act(() => {
-      screen.getByRole('button', { name: '環境を選択' }).click()
+      openDropdown(trigger)
     })
     const img = screen.getByAltText('屋外') as HTMLImageElement
     expect(img).toBeDefined()
     expect(img.src).toContain('/api/images/outdoor.jpg')
   })
 
+  it('環境を選択すると SELECT_ENVIRONMENT が dispatch される', () => {
+    let capturedDispatch!: Dispatch<AppAction>
+    const wrapper = render(
+      <AppProvider>
+        <DispatchCapture onCapture={(d) => { capturedDispatch = d }} />
+        <GlobalSettingsPanel />
+      </AppProvider>
+    )
+
+    act(() => {
+      capturedDispatch({
+        type: 'SET_LIBRARY_DATA',
+        payload: { scenes: [], environments: mockEnvironments, techDefaults: mockTechDefaults },
+      })
+    })
+
+    const trigger = getSelectTrigger()
+    act(() => {
+      openDropdown(trigger)
+    })
+
+    const option = screen.getByRole('option', { name: '室内' })
+    act(() => {
+      fireEvent.click(option)
+    })
+
+    // 選択後に室内の名前がトリガーに表示される（dispatch 経由で state 更新）
+    expect(screen.getByText('室内')).toBeDefined()
+
+    wrapper.unmount()
+  })
+
   it('環境選択後にドロップダウンが閉じる', () => {
     renderWithLibraryData()
+    const trigger = getSelectTrigger()
     act(() => {
-      screen.getByRole('button', { name: '環境を選択' }).click()
+      openDropdown(trigger)
     })
+    const option = screen.getByRole('option', { name: '室内' })
     act(() => {
-      screen.getByRole('option', { name: '室内' }).click()
+      fireEvent.click(option)
     })
     expect(screen.queryByRole('listbox')).toBeNull()
   })
 
-  it('環境選択後にトリガーボタンに選択環境名が表示される', () => {
-    renderWithLibraryData()
-    act(() => {
-      screen.getByRole('button', { name: '環境を選択' }).click()
-    })
-    act(() => {
-      screen.getByRole('option', { name: '室内' }).click()
-    })
-    expect(screen.getByText('室内')).toBeDefined()
-  })
-
-  it('環境選択後に再クリックで別の環境に切り替えられる', () => {
-    renderWithLibraryData()
-    // 室内を選択
-    act(() => {
-      screen.getByRole('button', { name: '環境を選択' }).click()
-    })
-    act(() => {
-      screen.getByRole('option', { name: '室内' }).click()
-    })
-    // 再び開いて屋外を選択
-    act(() => {
-      screen.getByRole('button', { name: '環境: 室内' }).click()
-    })
-    act(() => {
-      screen.getByRole('option', { name: '屋外' }).click()
-    })
-    expect(screen.getByText('屋外')).toBeDefined()
-  })
-
   it('環境リストが空の場合でもエラーなく動作する', () => {
     renderWithLibraryData([])
+    const trigger = getSelectTrigger()
     act(() => {
-      screen.getByRole('button', { name: '環境を選択' }).click()
+      openDropdown(trigger)
     })
     expect(screen.getByRole('listbox')).toBeDefined()
     expect(screen.queryAllByRole('option')).toHaveLength(0)

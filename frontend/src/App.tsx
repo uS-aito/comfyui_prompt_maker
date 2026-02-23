@@ -39,20 +39,20 @@ function AppContent() {
 
   return (
     <>
-      <div style={{ display: 'flex', height: '100%' }}>
+      <div className="flex h-screen bg-background text-foreground">
         {/* 左ペイン: グローバル設定 + 技術設定 */}
-        <div style={{ flex: '0 0 300px', overflowY: 'auto' }}>
+        <div className="w-[300px] shrink-0 overflow-y-auto border-r border-border p-4">
           <GlobalSettingsPanel />
           <TechSettingsPanel />
         </div>
 
         {/* 中央ペイン: シーンライブラリ */}
-        <div style={{ flex: 1, overflowY: 'auto' }}>
+        <div className="flex-1 overflow-y-auto p-4">
           <SceneLibraryPanel />
         </div>
 
         {/* 右ペイン: シーンキュー */}
-        <div style={{ flex: '0 0 300px', overflowY: 'auto' }}>
+        <div className="w-[300px] shrink-0 overflow-y-auto border-l border-border p-4">
           <SceneQueuePanel />
         </div>
       </div>

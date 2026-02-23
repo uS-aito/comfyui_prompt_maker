@@ -1,9 +1,12 @@
 import { useState } from 'react'
+import { Loader2 } from 'lucide-react'
 import { useAppContext } from '../../state/AppContext'
 import { generateConfig, ApiError } from '../../api/client'
 import { buildGenerateRequest } from '../../utils/buildGenerateRequest'
 import { downloadBlob } from '../../utils/download'
 import { validateGenerateRequest } from '../../utils/validation'
+import { Button } from '../ui/button'
+import { Alert, AlertDescription } from '../ui/alert'
 import { QueueCard } from './QueueCard'
 
 export function SceneQueuePanel() {
@@ -55,12 +58,12 @@ export function SceneQueuePanel() {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <div style={{ flex: 1, overflowY: 'auto' }}>
+    <div className="flex flex-col h-full">
+      <div className="flex-1 overflow-y-auto">
         {sceneQueue.length === 0 ? (
-          <div>シーンが追加されていません</div>
+          <p className="text-muted-foreground text-sm p-4">シーンが追加されていません</p>
         ) : (
-          <ul role="list" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+          <ul role="list" className="list-none p-0 m-0">
             {sceneQueue.map((item) => (
               <li key={item.id}>
                 <QueueCard
@@ -75,26 +78,39 @@ export function SceneQueuePanel() {
       </div>
 
       {emptyQueueError && (
-        <div role="alert">シーンを1件以上追加してください</div>
+        <Alert className="mx-2 mb-2">
+          <AlertDescription>シーンを1件以上追加してください</AlertDescription>
+        </Alert>
       )}
 
       {missingTechFields.length > 0 && (
-        <div role="alert">
-          <div>未設定の必須項目があります</div>
-          <ul>
-            {missingTechFields.map((field) => (
-              <li key={field}>{field}</li>
-            ))}
-          </ul>
-        </div>
+        <Alert className="mx-2 mb-2">
+          <AlertDescription>
+            <div>未設定の必須項目があります</div>
+            <ul>
+              {missingTechFields.map((field) => (
+                <li key={field}>{field}</li>
+              ))}
+            </ul>
+          </AlertDescription>
+        </Alert>
       )}
 
       {generateError && (
-        <div role="alert">{generateError}</div>
+        <Alert variant="destructive" className="mx-2 mb-2">
+          <AlertDescription>{generateError}</AlertDescription>
+        </Alert>
       )}
 
-      <div style={{ flexShrink: 0 }}>
-        <button onClick={handleGenerate}>作成（Generate）</button>
+      <div className="shrink-0 p-2">
+        <Button
+          onClick={handleGenerate}
+          disabled={state.loadingState.generating}
+          className="w-full"
+        >
+          {state.loadingState.generating && <Loader2 className="animate-spin" />}
+          作成（Generate）
+        </Button>
       </div>
     </div>
   )

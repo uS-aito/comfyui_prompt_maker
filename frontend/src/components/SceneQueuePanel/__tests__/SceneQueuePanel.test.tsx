@@ -291,6 +291,31 @@ describe('SceneQueuePanel - 生成前バリデーション', () => {
   })
 })
 
+// --- ローディング状態（タスク 6） ---
+
+describe('SceneQueuePanel - ローディング状態', () => {
+  it('生成処理中はボタンが disabled になる', () => {
+    let dispatchRef!: Dispatch<AppAction>
+    render(
+      <AppProvider>
+        <DispatchCapture onCapture={(d) => { dispatchRef = d }} />
+        <SceneQueuePanel />
+      </AppProvider>
+    )
+    act(() => {
+      dispatchRef({ type: 'SET_LOADING', payload: { generating: true } })
+    })
+    const button = screen.getByRole('button', { name: /作成/ }) as HTMLButtonElement
+    expect(button.disabled).toBe(true)
+  })
+
+  it('生成処理中でない場合はボタンが disabled でない', () => {
+    renderWithQueue()
+    const button = screen.getByRole('button', { name: /作成/ }) as HTMLButtonElement
+    expect(button.disabled).toBe(false)
+  })
+})
+
 // --- コンフィグ生成・ダウンロード（タスク 11.2） ---
 
 describe('SceneQueuePanel - コンフィグ生成・ダウンロード', () => {
