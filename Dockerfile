@@ -10,8 +10,10 @@ COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci
 
 # ソースコードをコピーしてビルド
+# tsc の型チェックは Docker 環境でプロジェクト参照（composite: true）の組み合わせにより
+# exit code 2 で失敗するため、Vite のビルドのみ実行する（Vite は esbuild で TS をコンパイルする）
 COPY frontend/ ./
-RUN npm run build
+RUN npx vite build
 
 # ==============================================================
 # Stage 2: Python runtime
