@@ -1,0 +1,12 @@
+services:
+  app:
+    image: ghcr.io/uS-aito/comfyui_prompt_maker:latest
+    # ローカルでビルドする場合は上の image: 行をコメントアウトして下記を使用:
+    # build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      # ホストの library.yaml をコンテナの /app/library.yaml にマウント（読み取り専用）
+      # library.yaml が存在しない場合、コンテナは起動時にエラー終了します
+      - ./library.yaml:/app/library.yaml:ro
+    restart: unless-stopped

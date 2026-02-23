@@ -1,0 +1,41 @@
+# Node.js（最重要: ビルドコンテキストの大幅削減）
+frontend/node_modules/
+# ホストの dist は使わない（Stage 1 でビルドするため）
+frontend/dist/
+
+# Python キャッシュ
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+**/.pytest_cache/
+
+# テストファイル（本番イメージ不要）
+backend/tests/
+conftest.py
+
+# ドキュメント（workflow_config_schema.json は除外しない）
+docs/*.drawio
+docs/memo.md
+
+# Git
+.git/
+.gitignore
+
+# CI/CD・開発ツール
+.github/
+.kiro/
+.claude/
+
+# エディタ・OS
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*.swo
+
+# プロジェクト設定ドキュメント
+README.md
+CLAUDE.md
