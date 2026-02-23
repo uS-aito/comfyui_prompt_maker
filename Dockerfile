@@ -13,6 +13,7 @@ RUN npm ci
 # tsc の型チェックは Docker 環境でプロジェクト参照（composite: true）の組み合わせにより
 # exit code 2 で失敗するため、Vite のビルドのみ実行する（Vite は esbuild で TS をコンパイルする）
 COPY frontend/ ./
+RUN ls ./
 RUN npx vite build
 
 # ==============================================================
